@@ -24,6 +24,29 @@ namespace Alleles
             dna[Dad] = fromDad;
             dna[Mom] = fromMom;
         }
+        public string Genotype() {
+            string str = "";
+            for(int i = 0;i < dna[Dad].Size();i++) {
+                //우-열 순서로 배열
+                if(dna[Dad].Genes[i].isDominant()) {
+                    str += dna[Dad].Genes[i].Genotype;
+                    str += dna[Mom].Genes[i].Genotype;
+                    continue;
+                }
+                str += dna[Mom].Genes[i].Genotype;
+                str += dna[Dad].Genes[i].Genotype;
+
+            }
+            return str;
+        }
+        public string Phenotype() {
+            var dna = Genotype();
+            var pt = "|";
+            for(int i = 0;i <= this.dna[Dad].Size();i+=2) {
+                pt+= $"{dna[i].Phenotype()}|";
+            }
+            return pt;
+        }
         public DNA[] CasesOfGermDNAs()
         {
             int dnalen = dna[Dad].Size();
@@ -52,6 +75,9 @@ namespace Alleles
                 dnas[i] = new DNA(r);
             }
             return dnas;
+        }
+        public int NumberOfGermDNACases() {
+            return (int)Math.Pow(2, dna[Dad].Size());
         }
     }
 }
