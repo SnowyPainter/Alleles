@@ -7,28 +7,26 @@ namespace Alleles
 
         public Wight(DNA fromDad, DNA fromMom)
         {
-            if (fromDad.Size() != fromMom.Size())
+            if (!DNAExtension.ValidateDNAs(fromDad, fromMom))
             {
+                Console.WriteLine("Not a valid DNA");
                 return;
-            }
-            for (int i = 0; i < fromDad.Size(); i++)
-            {
-                var gt = fromDad.Genes[i].Genotype;
-                if (gt != fromMom.Genes[i].UpperGT() && gt != fromMom.Genes[i].LowerGT())
-                {
-                    Console.WriteLine($"Genotype {gt}와 {fromMom.Genes[i].Genotype}는 유전형질, 따라서 동일한 위치에 존재 불가");
-                    return;
-                }
             }
 
             dna[Dad] = fromDad;
             dna[Mom] = fromMom;
         }
-        public string Genotype() {
+        public Wight Clone() {
+            return this;
+        }
+        public string Genotype()
+        {
             string str = "";
-            for(int i = 0;i < dna[Dad].Size();i++) {
+            for (int i = 0; i < dna[Dad].Size(); i++)
+            {
                 //우-열 순서로 배열
-                if(dna[Dad].Genes[i].isDominant()) {
+                if (dna[Dad].Genes[i].isDominant())
+                {
                     str += dna[Dad].Genes[i].Genotype;
                     str += dna[Mom].Genes[i].Genotype;
                     continue;
@@ -39,11 +37,13 @@ namespace Alleles
             }
             return str;
         }
-        public string Phenotype() {
+        public string Phenotype()
+        {
             var dna = Genotype();
             var pt = "|";
-            for(int i = 0;i <= this.dna[Dad].Size();i+=2) {
-                pt+= $"{dna[i].Phenotype()}|";
+            for (int i = 0; i <= this.dna[Dad].Size(); i += 2)
+            {
+                pt += $"{dna[i].Phenotype()}|";
             }
             return pt;
         }
@@ -59,10 +59,10 @@ namespace Alleles
                 char switchedGT; bool s = false;
                 for (int j = 0; j < possibleCount; j++)
                 {
-                    switchedGT = dna[Convert.ToInt32(s)].Genes[i-1].Genotype;
+                    switchedGT = dna[Convert.ToInt32(s)].Genes[i - 1].Genotype;
                     for (int k = 0; k < countOfAll / possibleCount; k++)
                     {
-                        gtForAll[(countOfAll/possibleCount)*j + k, i-1] = switchedGT;
+                        gtForAll[(countOfAll / possibleCount) * j + k, i - 1] = switchedGT;
                     }
                     s = !s;
                 }
@@ -76,8 +76,29 @@ namespace Alleles
             }
             return dnas;
         }
-        public int NumberOfGermDNACases() {
+        public int NumberOfGermDNACases()
+        {
             return (int)Math.Pow(2, dna[Dad].Size());
+        }
+        public Dictionary<(DNA, DNA), string> ReproductWith(Wight creature)
+        {
+            if (!DNAExtension.ValidateDNAs(dna[Dad], creature.dna[Dad]) || !DNAExtension.ValidateDNAs(dna[Mom], creature.dna[Mom]))
+            {
+                return null;
+            }
+
+            var reproducted = new Dictionary<(DNA, DNA), string>();
+            var c1 = CasesOfGermDNAs();
+            var c2 = creature.CasesOfGermDNAs();
+            foreach (var g in c1)
+            {
+                foreach (var g2 in c2)
+                {
+                    var p = GeneExtension.ToAlignedGenes(g, g2);
+                    reproducted.TryAdd((g, g2), p);
+                }
+            }
+            return reproducted;
         }
     }
 }

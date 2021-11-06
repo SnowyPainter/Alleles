@@ -1,5 +1,23 @@
 namespace Alleles
 {
+        public static class DNAExtension {
+        public static bool ValidateDNAs(DNA a, DNA b) {
+            if (a.Size() != b.Size())
+            {
+                return false;
+            }
+            for (int i = 0; i < a.Size(); i++)
+            {
+                var gt = a.Genes[i].Genotype;
+                if (gt != b.Genes[i].UpperGT() && gt != b.Genes[i].LowerGT())
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
     public class DNA
     {
         public readonly List<Gene> Genes = new List<Gene>();
@@ -35,10 +53,6 @@ namespace Alleles
         public int Size()
         {
             return Genes.Count();
-        }
-        public DNA Clone()
-        {
-            return this;
         }
     }
 }
