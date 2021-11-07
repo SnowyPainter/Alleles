@@ -1,11 +1,13 @@
 ﻿using System;
+using SFML.Window;
+using SFML.Graphics;
+using SFML.System;
 
 namespace Alleles
 {
     class Program
     {
-        static void Main(string[] args)
-        {
+        static void Test() {
             'R'.SetPhenotype("둥근");
             'Y'.SetPhenotype("황색");
             'r'.SetPhenotype("주름진");
@@ -28,6 +30,27 @@ namespace Alleles
             Console.Write("\n");
             foreach(var item in fs) {
                 Console.WriteLine($"표현형이 {item.Key}로 일치하는 유전자는 {item.Value}개");
+            }
+        }
+        static void Main(string[] args)
+        {
+            Test();
+
+            VideoMode mode = new VideoMode(300,300);
+            RenderWindow app = new RenderWindow(mode, "Alleles");
+            app.Closed += (obj, e) => {
+                app.Close();
+            };
+            app.KeyPressed += (sender, e) => {
+                var window = (Window)sender;
+                var keycode = e.Code;
+            };
+            while(app.IsOpen) {
+                //Computing
+                app.DispatchEvents();
+                app.Clear();
+                //Draw
+                app.Display();
             }
             
 
