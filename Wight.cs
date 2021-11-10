@@ -4,7 +4,6 @@ namespace Alleles
     {
         private int Dad = 0, Mom = 1;
         private DNA[] dna = new DNA[2];
-
         public Wight(DNA fromDad, DNA fromMom)
         {
             if (!DNAExtension.ValidateDNAs(fromDad, fromMom))

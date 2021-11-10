@@ -3,10 +3,11 @@ namespace Alleles
     public static class GeneExtension
     {
         private static Dictionary<char, string> phenoForgeno = new Dictionary<char, string>();
-        public static void SetPhenotype(this char gene, string text)
+        public static char SetPhenotype(this char gene, string text)
         {
             if (!phenoForgeno.TryAdd(gene, text))
                 phenoForgeno[gene] = text;
+            return gene;
         }
         public static string? Phenotype(this char gene)
         {
