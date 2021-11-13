@@ -1,21 +1,51 @@
 ﻿@page "/"
 
 <PageTitle>Index</PageTitle>
-
-<h1>유전형, 표현형 입력</h1>
+<h1>Error : @err</h1>
+<h1>부, 모에 따른 유전형 입력</h1>
+<input placeholder="모" @bind="mDna"/>
+<input placeholder="부" @bind="dDna"/>
 <div>
-    <GeneCreateBox Dispnum="1"/>
+    @{
+        if (validate())
+        {
+            int i = 0;
+            foreach (var c in (dDna + mDna).ToList().Distinct())
+            {
+                <GeneCreateBox Dispnum="@i" GT="@(c.ToString())" />
+                i++;
+            }
+        }
+    }
 </div>
-
-@{GeneCreateBox.GenoSet += displayGenos;}
+@{
+    GeneCreateBox.GenoSet += displayGenos;
+}
 
 @code {
+    private string err = "Zero";
+    private string dDna = "", mDna = "";
+    private DNA dad = new DNA(), mom = new DNA();
     private void displayGenos()
     {
         foreach (var item in GeneCreateBox.GenoForPheno)
         {
             Console.WriteLine($"{item.Key} for {item.Value}");
         }
+    }
+    private bool validate()
+    {
+        dad = new DNA();
+        mom = new DNA();
+        foreach (var c in dDna)
+            dad.Genes.Add(new Gene(c));
+        foreach (var c in mDna)
+            mom.Genes.Add(new Gene(c));
+        if (!DNAExtension.ValidateDNAs(dad, mom))
+        {
+            return false;
+        }
+        return true;
     }
     public Wight? creature;
     public void SetPheno(char c, string b)

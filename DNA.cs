@@ -16,6 +16,7 @@ namespace Alleles
             }
             return true;
         }
+        
     }
 
     public class DNA
