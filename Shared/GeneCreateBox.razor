@@ -1,0 +1,48 @@
+<div>
+    <label for="@Dispnum"/>
+    <select name="@Dispnum" @onchange="genoChanged">
+        @for(int i = 65;i <= 90;i++) {
+            <option value="@intToChar(i)">@intToChar(i)</option>       
+        }
+    </select>
+    <input placeholder="표현형" @onchange="phenoChanged"/>
+    <span>@lower : </span>
+    <input placeholder="표현형" @onchange="lowerPhenoChanged"/>
+</div>
+
+@code {
+    [Parameter]
+    public int Dispnum {get;set;}
+    public delegate void GenoChange();
+    public static Dictionary<string, string> GenoForPheno = new Dictionary<string, string>();
+    public static event GenoChange GenoSet;
+
+    private string currGeno = "A",lower = "a", currPheno;
+    private char intToChar(int a) {
+        return (char)a;
+    }
+    private void genoChanged(ChangeEventArgs e) {
+        GenoForPheno.Remove(currGeno);
+        var pastLower = lower;
+        currGeno = e.Value.ToString();
+        lower = Char.ToLower(currGeno[0]).ToString();
+        if(!GenoForPheno.TryAdd(currGeno, currPheno))
+            GenoForPheno[currGeno] = currPheno;
+        if(!GenoForPheno.TryAdd(lower, GenoForPheno[pastLower]))
+            GenoForPheno[lower] = GenoForPheno[pastLower];
+        GenoForPheno.Remove(pastLower);
+        GenoSet();
+    }
+    private void phenoChanged(ChangeEventArgs e) {
+        currPheno = e.Value.ToString();
+        if(!GenoForPheno.TryAdd(currGeno, currPheno))
+            GenoForPheno[currGeno] = currPheno;
+        GenoSet();
+    }
+    private void lowerPhenoChanged(ChangeEventArgs e) {
+        var value = e.Value.ToString();
+        if(!GenoForPheno.TryAdd(lower, value))
+            GenoForPheno[lower] = value;
+        GenoSet();
+    }
+}

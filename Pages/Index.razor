@@ -2,6 +2,48 @@
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>유전형, 표현형 입력</h1>
+<div>
+    <GeneCreateBox Dispnum="1"/>
+</div>
 
-Welcome to your new app.
+@{GeneCreateBox.GenoSet += displayGenos;}
+
+@code {
+    private void displayGenos()
+    {
+        foreach (var item in GeneCreateBox.GenoForPheno)
+        {
+            Console.WriteLine($"{item.Key} for {item.Value}");
+        }
+    }
+    public Wight? creature;
+    public void SetPheno(char c, string b)
+    {
+        c.SetPhenotype(b);
+    }
+    public void NewCreature(char[] motherDNA, char[] fatherDNA)
+    {
+        DNA a = new DNA(fatherDNA), b = new DNA(motherDNA);
+        Wight creature = new Wight(a, b);
+    }
+    public Dictionary<(DNA, DNA), string> Reproduct(Wight? c)
+    {
+        if (c == null) c = creature.Clone();
+        return creature.ReproductWith(creature.Clone());
+    }
+    public Dictionary<string, int> CountSamePhenotypes(Dictionary<(DNA, DNA), string> reproducted)
+    {
+        Dictionary<string, int> phenoRatio = new Dictionary<string, int>();
+        var f2 = reproducted;
+        foreach (var item in f2)
+        {
+            var genotype = item.Value;
+
+            if (!phenoRatio.TryAdd(item.Value.Phenotype(), 1))
+                phenoRatio[item.Value.Phenotype()]++;
+        }
+        return phenoRatio;
+    }
+
+}
