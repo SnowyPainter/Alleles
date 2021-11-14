@@ -8,34 +8,36 @@
 <div>
     @if (validate())
     {
-        GeneExtension.Clear();
         int i = 0;
         foreach (var c in (dDna + mDna).ToList().Distinct())
         {
             <GeneCreateBox Dispnum="@i" GT="@(c.ToString())" />
             i++;
         }
+        <button @onclick="checkDict">표현형 검사</button>
         creature = new Wight(dad, mom);
     }
-
 </div>
 <div>
     <h1>F1</h1>
-    @if (creature != null)
-    {    
+   
+    @if(verified > 0)
+    {
         <span>@creature.Genotype()</span><br/>
         <span>@creature.Phenotype</span>
     }
 </div>
 <div>
     <h1>F2</h1>
-    @foreach (var f2 in Reproduct(null))
-    {
-            <span>@f2.Value</span><br/>
-    }
+    @if(verified > 0)
+        foreach (var f2 in Reproduct(null))
+        {
+            <span>@f2.Value</span> <span>@f2.Value.Phenotype()</span> <br/>
+        }
 </div>
 
 @code {
+    int verified = 0;
     private string dDna = "", mDna = "";
     private DNA dad = new DNA(), mom = new DNA();
     private bool validate()
@@ -54,7 +56,10 @@
         }
         return true;
     }
-
+    private void checkDict() {
+        Console.WriteLine("a".Phenotype());
+        verified++;
+    }
     public Wight? creature;
     public Dictionary<(DNA, DNA), string> Reproduct(Wight? c)
     {

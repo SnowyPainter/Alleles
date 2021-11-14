@@ -3,6 +3,12 @@ namespace Alleles
     public static class GeneExtension
     {
         private static Dictionary<char, string> phenoForgeno = new Dictionary<char, string>();
+        public static bool ValidateDictionary() {
+            if(phenoForgeno.Count <= 0) return false;
+            //var g = phenoForgeno.GroupBy(x=>x.Value).Where(x=>x.Count() > 1);
+            //if(g.Count() > 0) return false;
+            return true;
+        }
         public static void Clear() {
             phenoForgeno = new Dictionary<char, string>();
         }
