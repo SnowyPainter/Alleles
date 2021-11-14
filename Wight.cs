@@ -2,6 +2,9 @@ namespace Alleles
 {
     public class Wight
     {
+        public string Phenotype {
+            get { return phenotype(); }
+        }
         private int Dad = 0, Mom = 1;
         private DNA[] dna = new DNA[2];
         public Wight(DNA fromDad, DNA fromMom)
@@ -36,7 +39,7 @@ namespace Alleles
             }
             return str;
         }
-        public string Phenotype()
+        private string phenotype()
         {
             var dna = Genotype();
             var pt = "|";
@@ -44,6 +47,7 @@ namespace Alleles
             {
                 pt += $"{dna[i].Phenotype()}|";
             }
+            if(pt.Length == 1) pt = "";
             return pt;
         }
         public DNA[] CasesOfGermDNAs()

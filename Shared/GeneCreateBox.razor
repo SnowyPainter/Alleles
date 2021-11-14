@@ -8,17 +8,8 @@
     public int Dispnum {get;set;}
     [Parameter]
     public string GT {get;set;}
-    public delegate void GenoChange();
-    public static Dictionary<string, string> GenoForPheno = new Dictionary<string, string>();
-    public static event GenoChange GenoSet;
-
-    private char intToChar(int a) {
-        return (char)a;
-    }
     private void phenoChanged(ChangeEventArgs e) {
         var p = e.Value.ToString();
-        if(!GenoForPheno.TryAdd(GT, p))
-            GenoForPheno[GT] = p;
-        GenoSet();
+        GT[0].SetPhenotype(p);
     }
 }
