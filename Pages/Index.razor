@@ -1,11 +1,13 @@
 ﻿@page "/"
-
-<PageTitle>Index</PageTitle>
-<h1>F1의 부/모 DNA 입력</h1>
-<input placeholder="모" @bind="mDna"/>
-<input placeholder="부" @bind="dDna"/>
+<PageTitle>DNA app</PageTitle>
+<div class="inputbody">
+<div class="stepdiv">
+    <h1>F1의 부/모 DNA 입력</h1>
+    <input placeholder="모" @bind="mDna"/>
+    <input placeholder="부" @bind="dDna"/>
+</div>
+<div class="stepdiv">
 <h2>각 염색체들의 표현형 입력</h2>
-<div>
     @if (validate())
     {
         int i = 0;
@@ -14,30 +16,68 @@
             <GeneCreateBox Dispnum="@i" GT="@(c.ToString())" />
             i++;
         }
-        <button @onclick="checkDict">표현형 검사</button>
+            <button @onclick="checkDict">표현형 검사</button>
         creature = new Wight(dad, mom);
     }
 </div>
-<div>
+</div>
+<div class="resultbody">
+<div class="resultdiv">
     <h1>F1</h1>
-   
-    @if(verified > 0)
+
+    @if (verified > 0)
     {
-        <span>@creature.Genotype()</span><br/>
-        <span>@creature.Phenotype</span>
+        <p>DNA @creature.Genotype()</p>
+        <p>PHENOTYPE @creature.Phenotype</p>
+    }
+    <hr>
+    <h1>F2</h1>
+    <p class="" @onclick="showF2CollapseContentOnClick">생성될 수 있는 F2의 경우 펼치기</p>
+    @if (verified > 0)
+    {
+        var r = Reproduct(null);
+            @if(showF2CollapseContent) {
+                <table>
+                    <tr>
+                        <th>유전형</th>
+                        <th>표현형</th>
+                    </tr>
+                    @foreach (var f2 in r)
+                    {
+                    <tr>
+                        <td>@f2.Value</td>
+                        <td>@f2.Value.Phenotype()</td>
+                    </tr>
+                    }
+                </table>
+            }
+
+        var d = CountSamePhenotypes(r);
+        var keys = d.Keys;
+        var counts = d.Values;
+        <h3>F2의 표현형 개수</h3>
+            <table>
+                <tr>
+                    <th></th>
+                    @foreach (var k in keys)
+                    {
+                        <th>@k</th>
+                    }
+                </tr>
+                <tr>
+                    <th scope="row">개수</th>
+                    @foreach (var c in counts)
+                    {
+                        <td>@c</td>
+                    }
+                </tr>
+            </table>
     }
 </div>
-<div>
-    <h1>F2</h1>
-    @if(verified > 0)
-        foreach (var f2 in Reproduct(null))
-        {
-            <span>@f2.Value</span> <span>@f2.Value.Phenotype()</span> <br/>
-        }
 </div>
-
 @code {
     int verified = 0;
+    bool showF2CollapseContent = false;
     private string dDna = "", mDna = "";
     private DNA dad = new DNA(), mom = new DNA();
     private bool validate()
@@ -56,9 +96,13 @@
         }
         return true;
     }
-    private void checkDict() {
+    private void checkDict()
+    {
         Console.WriteLine("a".Phenotype());
         verified++;
+    }
+    private void showF2CollapseContentOnClick() {
+        showF2CollapseContent = !showF2CollapseContent;
     }
     public Wight? creature;
     public Dictionary<(DNA, DNA), string> Reproduct(Wight? c)
