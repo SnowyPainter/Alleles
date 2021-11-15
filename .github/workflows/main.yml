@@ -1,0 +1,16 @@
+name: Deploy to Github Pages
+on:
+  push:
+    branches: [ master ]
+jobs:
+  deploy-to-github-pages:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core SDK 3.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0
+    - name: Publish .NET Core Projct
+      run: dotnet publish -c Release
+    
