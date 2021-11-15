@@ -13,4 +13,9 @@ jobs:
         dotnet-version: 6.0
     - name: Publish .NET Core Projct
       run: dotnet publish -c Release
-    
+    - name: Commit wwwroot to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@3.7.1
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: release/wwwroot
