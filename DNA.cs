@@ -1,6 +1,6 @@
 namespace Alleles
 {
-        public static class DNAExtension {
+    public static class DNAExtension {
         public static bool ValidateDNAs(DNA a, DNA b) {
             if (a.Size() != b.Size())
             {
@@ -26,6 +26,9 @@ namespace Alleles
         public DNA(char[] gts)
         {
             Set(gts);
+        }
+        public DNA(string gts) {
+            Set(gts.ToCharArray());
         }
         public string Genotype()
         {
