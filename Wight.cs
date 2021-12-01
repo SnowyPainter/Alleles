@@ -1,3 +1,5 @@
+using System;
+
 namespace Alleles
 {
     public class Wight
@@ -40,7 +42,7 @@ namespace Alleles
         {
             var dna = Genotype();
             var pt = "|";
-            for (int i = 0; i <= this.dna[Dad].Size(); i += 2)
+            for (int i = 0; i < this.dna[Dad].Size()*2; i += 2)
             {
                 pt += $"{dna[i].Phenotype()}|";
             }
