@@ -6,6 +6,9 @@ namespace Alleles
     {
         private int Dad = 0, Mom = 1;
         private DNA[] dna = new DNA[2];
+        public Wight(string dna):this(new DNA(dna.Genotype()), new DNA(dna.RGenotype())) {
+            
+        }
         public Wight(DNA fromDad, DNA fromMom)
         {
             if (!DNAExtension.ValidateDNAs(fromDad, fromMom))

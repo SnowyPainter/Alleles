@@ -16,12 +16,43 @@ namespace Alleles
             }
             return true;
         }
-        
+        public static Dictionary<string, int> CountSamePhenotypes(Dictionary<(DNA, DNA), string> reproducted)
+        {
+            Dictionary<string, int> phenoRatio = new Dictionary<string, int>();
+            var f2 = reproducted;
+            foreach (var item in f2)
+            {
+                var genotype = item.Value;
+
+                if (!phenoRatio.TryAdd(item.Value.Phenotype(), 1))
+                    phenoRatio[item.Value.Phenotype()]++;
+            }
+            return phenoRatio;
+        }
+        public static string Genotype(this string s)
+        {
+            var d = "";
+            for (int i = 0; i < s.Length; i+=2)
+            {
+                d += s[i];
+            }
+            return d;
+        }
+        public static string RGenotype(this string s)
+        {
+            var d = "";
+            for (int i = 1; i <= s.Length; i+=2)
+            {
+                d += s[i];
+            }
+            return d;
+        }
     }
 
     public class DNA
     {
         public readonly List<Gene> Genes = new List<Gene>();
+        
         public DNA() { }
         public DNA(char[] gts)
         {

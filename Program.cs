@@ -1,66 +1,124 @@
 ﻿using System;
+using System.Text;
 
 namespace Alleles // Note: actual namespace depends on the project name.
 {
     public class Program
     {
+        private static StringBuilder sb = new StringBuilder();
+        public static string FormalOfLove(float a, float b, float c, float s)
+        {
+            return $"{a} * x^2 + {b} * |x| * y + {c} * y^2 = {s}";
+        }
+        private static void SetPhenotypeUpperLower(char c, string p)
+        {
+            Char.ToUpper(c).SetPhenotype("우등계수 " + p);
+            Char.ToLower(c).SetPhenotype("열등계수 " + p);
+        }
+        private static string csvAppend(int fn, string c, string g, string p, string str)
+        {
+            str += $"{fn}, {c}, {g}, {p}\n";
+            return str;
+        }
+        // csv
+        // F1 Cases ... result
+        // F2 Cases ... result2
+        public static void MakeAllKindOfDNA(int fn, string fd, string fm, int i, int max)
+        {
+            var str = "";
+            if (i > max) return;
+            Wight w = new Wight(new DNA(fd), new DNA(fm));
+            var cases = w.CasesOfGermDNAs();
+            var j = 0;
+            str = $"{fn}";
+            foreach(var c in cases)
+                str += $",{c.Genotype()}";
+            foreach (var r in w.ReproductWith(w.Clone()))
+                str+= $",{r.Value}";
+            
+            sb.AppendLine(str);
+
+            j++;
+            foreach (var c in cases)
+            {
+                foreach(var C in cases) {
+                    MakeAllKindOfDNA(fn + 1, C.Genotype(), c.Genotype(), i + 1, max);
+                }
+            }
+
+        }
         public static void Main(string[] args)
         {
-            'R'.SetPhenotype("둥글다");
-            'r'.SetPhenotype("주름지다");
-            'Y'.SetPhenotype("황색");
-            'y'.SetPhenotype("녹색");
-            'T'.SetPhenotype("크다");
-            't'.SetPhenotype("작다");
+            SetPhenotypeUpperLower('a', "x^2");
+            SetPhenotypeUpperLower('b', "x");
+            SetPhenotypeUpperLower('c', "y^2");
+            SetPhenotypeUpperLower('s', "크기");
+            //p.Dad = {'A', 'B', 'C', 'S'}
+            //p.Mom = {'a', 'b', 'c', 's'}
+            Dictionary<char, float> initials = new Dictionary<char, float>() {
+                {'A', 17},
+                {'a', 2.6f},
+                {'B', -16},
+                {'b', -1.3f},
+                {'C', 15},
+                {'c', 6.5f},
+                {'S', 100},
+                {'s', 50}
+            };
+            string csvRaw = "./sheet.csv";
+            Console.WriteLine("시간이 오래 걸립니다. 조금만 기다려주세요.");
+            Console.WriteLine($"{csvRaw}에 파일을 저장하는 중 ... ");
+            const string A = "ABCS", B = "abcs";
+            MakeAllKindOfDNA(1, A, B, 0, 2);
+            File.AppendAllText(csvRaw, sb.ToString());
 
-            var pDad = "RY";
-            var pMom = "ry"; //RRYY + rryy 의 생식세포
-            bool self = false;
-            
-            //.exe pDad pMom self
-            //.exe pDad pMom otherDad otherMom
-            pDad = args[0];
-            pMom = args[1];
-            if(args.Length == 3 && args[2] == "self") {
-                self = true;
-            }
-            
-            Wight f1 = new Wight(new DNA(pDad), new DNA(pMom));
-            Console.WriteLine($"F1\n유전형:\t{f1.Genotype()}\n표현형:\t{f1.Phenotype()}");
-            Console.WriteLine("생성될 수 있는 생식세포 유전자형");
+            string lastline = File.ReadLines(csvRaw).Last();
+            string[] lastcols = lastline.Split(',');
+            Console.WriteLine($"F{lastcols[0]} 단계까지 유전");
             int i = 1;
-            foreach(var c in f1.CasesOfGermDNAs()) {
-                Console.WriteLine($"{i}.\t{c.Genotype()}\n=\t{c.Phenotype()}");
+            while(lastcols[i].Length == lastcols[1].Length) {
+                Console.WriteLine($"Germ\t{i} : {lastcols[i]}");
                 i++;
             }
+            Dictionary<string, int> dict = new Dictionary<string, int>();
+            while(i < lastcols.Count()) {
+                if(!dict.ContainsKey(lastcols[i]))
+                    dict[lastcols[i]] = 1;
+                else
+                    dict[lastcols[i]]++;
+                Console.WriteLine($"Common DNAs {lastcols[i]}");
+                i++;
+            }
+            var kp = dict.Max();
+            var v = kp.Key;
+            Console.WriteLine($"최종 분석 결과 : {v}");
             
-            var other = f1.Clone();
-            if(!self)
-                other = new Wight(new DNA(args[2]), new DNA(args[3]));
+        
+            float a = 0, b = 0, c = 0, s = 0;
+            if(v.Contains('A')) {
+                a = initials['A'];
+            } else if(v.Contains('a')) {
+                a = initials['a'];
+            }
+            if(v.Contains('B')) {
+                b = initials['B'];
+            } else if(v.Contains('b')) {
+                b = initials['b'];
+            }
+            if(v.Contains('C')) {
+                c = initials['C'];
+            } else if(v.Contains('c')) {
+                c = initials['c'];
+            }
+            if(v.Contains('S')) {
+                s = initials['S'];
+            } else if(v.Contains('s')) {
+                s = initials['s'];
+            }
 
-            Console.WriteLine($"F2 {f1.Genotype()} + {other.Genotype()}\n생성될 수 있는 {other.Genotype()}와 교배시 유전자형");
-            var f2 = f1.ReproductWith(other);
-            int j = 1;
-            foreach(var c in f2) {
-                Console.WriteLine($"{j}.\t{c.Value}");
-                j++;
-            }
-            foreach(var c in CountSamePhenotypes(f2)) {
-                Console.WriteLine($"{c.Key} = {c.Value}");
-            }
-        }
-        public static Dictionary<string, int> CountSamePhenotypes(Dictionary<(DNA, DNA), string> reproducted)
-        {
-            Dictionary<string, int> phenoRatio = new Dictionary<string, int>();
-            var f2 = reproducted;
-            foreach (var item in f2)
-            {
-                var genotype = item.Value;
+            Console.WriteLine($"The most commonly {v}");
+            Console.WriteLine(FormalOfLove(a,b,c,s));
 
-                if (!phenoRatio.TryAdd(item.Value.Phenotype(), 1))
-                    phenoRatio[item.Value.Phenotype()]++;
-            }
-            return phenoRatio;
         }
     }
 }
