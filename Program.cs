@@ -8,7 +8,7 @@ namespace Alleles // Note: actual namespace depends on the project name.
         private static StringBuilder sb = new StringBuilder();
         public static string FormalOfLove(float a, float b, float c, float s)
         {
-            return $"{a} * x^2 + {b} * |x| * y + {c} * y^2 = {s}";
+            return $"{a} * x^2 + {b} * abs(x) * y + {c} * y^2 = {s}";
         }
         private static void SetPhenotypeUpperLower(char c, string p)
         {
@@ -33,19 +33,12 @@ namespace Alleles // Note: actual namespace depends on the project name.
             str = $"{fn}";
             foreach(var c in cases)
                 str += $",{c.Genotype()}";
-            foreach (var r in w.ReproductWith(w.Clone()))
+            foreach (var r in w.ReproductWith(w.Clone())) {
                 str+= $",{r.Value}";
-            
-            sb.AppendLine(str);
-
-            j++;
-            foreach (var c in cases)
-            {
-                foreach(var C in cases) {
-                    MakeAllKindOfDNA(fn + 1, C.Genotype(), c.Genotype(), i + 1, max);
-                }
+                MakeAllKindOfDNA(fn + 1, r.Key.Item1.Genotype(), r.Key.Item2.Genotype(), i + 1, max);
             }
-
+            sb.AppendLine(str);
+            j++;
         }
         public static void Main(string[] args)
         {
@@ -53,8 +46,6 @@ namespace Alleles // Note: actual namespace depends on the project name.
             SetPhenotypeUpperLower('b', "x");
             SetPhenotypeUpperLower('c', "y^2");
             SetPhenotypeUpperLower('s', "크기");
-            //p.Dad = {'A', 'B', 'C', 'S'}
-            //p.Mom = {'a', 'b', 'c', 's'}
             Dictionary<char, float> initials = new Dictionary<char, float>() {
                 {'A', 17},
                 {'a', 2.6f},
@@ -65,19 +56,27 @@ namespace Alleles // Note: actual namespace depends on the project name.
                 {'S', 100},
                 {'s', 50}
             };
-            string csvRaw = "./sheet.csv";
-            Console.WriteLine("시간이 오래 걸립니다. 조금만 기다려주세요.");
+            string csvRaw = "./program_result.csv";
+            Console.WriteLine("재귀함수 호출 및 종료까지의 시간이 매우 많이, 오래 걸립니다.\n조금만 기다려주세요.");
             Console.WriteLine($"{csvRaw}에 파일을 저장하는 중 ... ");
             const string A = "ABCS", B = "abcs";
-            MakeAllKindOfDNA(1, A, B, 0, 2);
+            const int GEN = 2;
+            /*
+            MakeAllKindOfDNA(1, A, B, 0, GEN);
+            if(File.Exists(csvRaw)) {
+                Console.WriteLine($"{csvRaw}가 존재하여 현재 날짜로 이름이 변경됩니다.");
+                csvRaw = DateTime.Now.ToString("MMddyyyyHHmmss") + ".csv";
+            }
+            */
             File.AppendAllText(csvRaw, sb.ToString());
-
-            string lastline = File.ReadLines(csvRaw).Last();
+            Console.WriteLine($"{csvRaw}에 파일 저장이 완료되었습니다.");
+            var lines = File.ReadLines(csvRaw);
+            string lastline = lines.Last();
             string[] lastcols = lastline.Split(',');
-            Console.WriteLine($"F{lastcols[0]} 단계까지 유전");
+            Console.WriteLine($"F{GEN+1} 단계까지 유전됨");
             int i = 1;
             while(lastcols[i].Length == lastcols[1].Length) {
-                Console.WriteLine($"Germ\t{i} : {lastcols[i]}");
+                //Console.WriteLine($"Germ\t{i} : {lastcols[i]}");
                 i++;
             }
             Dictionary<string, int> dict = new Dictionary<string, int>();
@@ -86,38 +85,37 @@ namespace Alleles // Note: actual namespace depends on the project name.
                     dict[lastcols[i]] = 1;
                 else
                     dict[lastcols[i]]++;
-                Console.WriteLine($"Common DNAs {lastcols[i]}");
+                //Console.WriteLine($"Common DNAs {lastcols[i]}");
                 i++;
             }
-            var kp = dict.Max();
-            var v = kp.Key;
-            Console.WriteLine($"최종 분석 결과 : {v}");
-            
-        
-            float a = 0, b = 0, c = 0, s = 0;
-            if(v.Contains('A')) {
-                a = initials['A'];
-            } else if(v.Contains('a')) {
-                a = initials['a'];
-            }
-            if(v.Contains('B')) {
-                b = initials['B'];
-            } else if(v.Contains('b')) {
-                b = initials['b'];
-            }
-            if(v.Contains('C')) {
-                c = initials['C'];
-            } else if(v.Contains('c')) {
-                c = initials['c'];
-            }
-            if(v.Contains('S')) {
-                s = initials['S'];
-            } else if(v.Contains('s')) {
-                s = initials['s'];
-            }
 
-            Console.WriteLine($"The most commonly {v}");
-            Console.WriteLine(FormalOfLove(a,b,c,s));
+            Random random = new Random();
+            
+            var lineSplited = lines.ToList()[0].Split(',');
+            //it must be last gneration row.
+            var randDNA = dict.Keys.ToList()[random.Next(0, dict.Count())];
+
+            Dictionary<char, float> coef = new Dictionary<char, float>();
+            var literals = new char[] {'A', 'B', 'C', 'S'};
+            var coefs = new char[5];
+            var geno = randDNA.Genotype();
+            i = 0;
+            foreach(var l in literals) {
+                var upper = Char.ToUpper(l);
+                var lower = Char.ToLower(l);
+                if(geno.Contains(upper)) {
+                    coefs[i] = upper;
+                    coef[coefs[i]] = initials[upper];
+                }
+                else if(geno.Contains(lower)) {
+                    coefs[i] = lower;
+                    coef[coefs[i]] = initials[lower];
+                }
+                i++;
+            }
+            Console.WriteLine($"자식세대 끝에서.. {randDNA}가 존재할 수 있음");
+            Console.WriteLine($"{GEN+1}세대에 걸쳐 유전된 함수식은 아래와 같습니다.");
+            Console.WriteLine(FormalOfLove(coef[coefs[0]], coef[coefs[1]], coef[coefs[2]], coef[coefs[3]]));
 
         }
     }
