@@ -56,18 +56,18 @@ namespace Alleles // Note: actual namespace depends on the project name.
                 {'S', 100},
                 {'s', 50}
             };
-            string csvRaw = "./program_result.csv";
+            string csvRaw = @"./program_result.csv";
             Console.WriteLine("재귀함수 호출 및 종료까지의 시간이 매우 많이, 오래 걸립니다.\n조금만 기다려주세요.");
             Console.WriteLine($"{csvRaw}에 파일을 저장하는 중 ... ");
             const string A = "ABCS", B = "abcs";
             const int GEN = 2;
-            /*
+            
             MakeAllKindOfDNA(1, A, B, 0, GEN);
             if(File.Exists(csvRaw)) {
                 Console.WriteLine($"{csvRaw}가 존재하여 현재 날짜로 이름이 변경됩니다.");
                 csvRaw = DateTime.Now.ToString("MMddyyyyHHmmss") + ".csv";
             }
-            */
+            
             File.AppendAllText(csvRaw, sb.ToString());
             Console.WriteLine($"{csvRaw}에 파일 저장이 완료되었습니다.");
             var lines = File.ReadLines(csvRaw);
