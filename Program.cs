@@ -5,39 +5,44 @@ namespace Alleles // Note: actual namespace depends on the project name.
 {
     public class Program
     {
-        private static StringBuilder sb = new StringBuilder();
         public static string FormalOfLove(float a, float b, float c, float s)
         {
             return $"{a} * x^2 + {b} * abs(x) * y + {c} * y^2 = {s}";
         }
         private static void SetPhenotypeUpperLower(char c, string p)
         {
-            Char.ToUpper(c).SetPhenotype("우등계수 " + p);
-            Char.ToLower(c).SetPhenotype("열등계수 " + p);
+            Char.ToUpper(c).SetPhenotype("우성계수" + p);
+            Char.ToLower(c).SetPhenotype("열성계수" + p);
         }
         private static string csvAppend(int fn, string c, string g, string p, string str)
         {
             str += $"{fn}, {c}, {g}, {p}\n";
             return str;
         }
-        // csv
-        // F1 Cases ... result
-        // F2 Cases ... result2
+        
+        private static Dictionary<int,StringBuilder> sbdict = new Dictionary<int, StringBuilder>();
         public static void MakeAllKindOfDNA(int fn, string fd, string fm, int i, int max)
         {
-            var str = "";
-            if (i > max) return;
+            if (i > max || fn < 1) return;
             Wight w = new Wight(new DNA(fd), new DNA(fm));
             var cases = w.CasesOfGermDNAs();
             var j = 0;
-            str = $"{fn}";
+            var str = "";
             foreach(var c in cases)
                 str += $",{c.Genotype()}";
             foreach (var r in w.ReproductWith(w.Clone())) {
+                //자가수분 제약 - 외부 환경
+                /* if(r.Value.Phenotype().Contains("|우성계수크기|")) {
+                    if(new Random().Next(0,3) >= 1) // 2/3
+                        continue;
+                } */
+
                 str+= $",{r.Value}";
                 MakeAllKindOfDNA(fn + 1, r.Key.Item1.Genotype(), r.Key.Item2.Genotype(), i + 1, max);
             }
-            sb.AppendLine(str);
+            
+            if(!sbdict.TryAdd(fn, new StringBuilder(str)))
+                sbdict[fn].AppendLine(str);
             j++;
         }
         public static void Main(string[] args)
@@ -60,34 +65,45 @@ namespace Alleles // Note: actual namespace depends on the project name.
             Console.WriteLine("재귀함수 호출 및 종료까지의 시간이 매우 많이, 오래 걸립니다.\n조금만 기다려주세요.");
             Console.WriteLine($"{csvRaw}에 파일을 저장하는 중 ... ");
             const string A = "ABCS", B = "abcs";
-            const int GEN = 2;
+            
+            const int GEN = 1;
             
             MakeAllKindOfDNA(1, A, B, 0, GEN);
             if(File.Exists(csvRaw)) {
                 Console.WriteLine($"{csvRaw}가 존재하여 현재 날짜로 이름이 변경됩니다.");
                 csvRaw = DateTime.Now.ToString("MMddyyyyHHmmss") + ".csv";
             }
-            
-            File.AppendAllText(csvRaw, sb.ToString());
+            foreach(var s in sbdict)
+                File.AppendAllText(csvRaw, $"{s.Key}{s.Value.ToString()}");
             Console.WriteLine($"{csvRaw}에 파일 저장이 완료되었습니다.");
             var lines = File.ReadLines(csvRaw);
             string lastline = lines.Last();
-            string[] lastcols = lastline.Split(',');
+            string[] cols = lastline.Split(',');
             Console.WriteLine($"F{GEN+1} 단계까지 유전됨");
             int i = 1;
-            while(lastcols[i].Length == lastcols[1].Length) {
+            //생식세포 DNA
+            while(cols[i].Length == cols[1].Length) {
                 //Console.WriteLine($"Germ\t{i} : {lastcols[i]}");
                 i++;
             }
             Dictionary<string, int> dict = new Dictionary<string, int>();
-            while(i < lastcols.Count()) {
-                if(!dict.ContainsKey(lastcols[i]))
-                    dict[lastcols[i]] = 1;
+
+            //외부환경 체크
+            //int p = 0, m = 0;
+
+            while(i < cols.Count()) {
+                //if(cols[i].Phenotype().Contains("|우성계수크기|")) p++;
+                //else m++;
+
+                if(!dict.ContainsKey(cols[i]))
+                    dict[cols[i]] = 1;
                 else
-                    dict[lastcols[i]]++;
+                    dict[cols[i]]++;
                 //Console.WriteLine($"Common DNAs {lastcols[i]}");
                 i++;
             }
+
+            Console.WriteLine($"|우성계수크기|의 표현형 개수 : {p} not {m}");
 
             Random random = new Random();
             
