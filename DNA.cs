@@ -24,19 +24,10 @@ namespace Alleles
             {
                 var genotype = item.Value;
 
-                if (!phenoRatio.TryAdd(item.Value.Phenotype(), 1))
-                    phenoRatio[item.Value.Phenotype()]++;
+                if (!phenoRatio.TryAdd(item.Value.PhenotypeString(), 1))
+                    phenoRatio[item.Value.PhenotypeString()]++;
             }
             return phenoRatio;
-        }
-        public static Dictionary<string, int> CountPhenotypes(this List<DNA>? reproducted) {
-            if(reproducted == null) return null;
-            Dictionary<string, int> counts = new Dictionary<string, int>();
-            foreach(var r in reproducted.ToList()) {
-                if(!counts.TryAdd(r.Phenotype(), 1))
-                    counts[r.Phenotype()]++;
-            }
-            return counts; 
         }
         public static string Genotype(this string s)
         {
@@ -90,15 +81,16 @@ namespace Alleles
             }
             return str;
         }
-        public string Phenotype()
+        public List<IPhenotypeExecution> Phenotype()
         {
             var dna = Genotype();
-            var pt = "|";
+            var r = new List<IPhenotypeExecution>();
             for (int i = 0; i < dna.Count();i++)
             {
-                pt += $"{dna[i].Phenotype()}|";
+                var v = dna[i].Phenotype();
+                r.Add(v);
             }
-            return pt;
+            return r;
         }
         public void Set(char[] genotypes)
         {

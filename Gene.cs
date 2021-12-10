@@ -2,29 +2,28 @@ namespace Alleles
 {
     public static class GeneExtension
     {
-        private static Dictionary<char, string> phenoForgeno = new Dictionary<char, string>();
+        private static Dictionary<char, IPhenotypeExecution> phenoForgeno = new Dictionary<char, IPhenotypeExecution>();
         public static bool ValidateDictionary() {
             if(phenoForgeno.Count <= 0) return false;
-            //var g = phenoForgeno.GroupBy(x=>x.Value).Where(x=>x.Count() > 1);
-            //if(g.Count() > 0) return false;
             return true;
         }
         public static void Clear() {
-            phenoForgeno = new Dictionary<char, string>();
+            phenoForgeno = new Dictionary<char, IPhenotypeExecution>();
         }
-        public static void SetPhenotype(this char gene, string text)
+        public static void SetPhenotype(this char gene, IPhenotypeExecution ep)
         {
-            if (!phenoForgeno.TryAdd(gene, text))
-                phenoForgeno[gene] = text;
+            if (!phenoForgeno.TryAdd(gene, ep))
+                phenoForgeno[gene] = ep;
         }
-        public static string? Phenotype(this char gene)
+        public static IPhenotypeExecution? Phenotype(this char gene)
         {
             return phenoForgeno.GetValueOrDefault(gene);
         }
-        public static string Phenotype(this string genotypes) {
+        public static string PhenotypeString(this string genotypes) {
             var pt = "|";
             for(int i = 0;i < genotypes.Length;i+=2) {
-                pt+= $"{genotypes[i].Phenotype()}|";
+                var p = genotypes[i].Phenotype();
+                if(p != null) pt+= $"{p.Execution}|";
             }
             return pt;
         }

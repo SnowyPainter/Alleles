@@ -4,8 +4,11 @@ namespace Alleles
 {
     public class Wight
     {
+        public int JustA, JustB;
+
         private int Dad = 0, Mom = 1;
         private DNA[] dna = new DNA[2];
+        
         public Wight(string dna):this(new DNA(dna.Genotype()), new DNA(dna.RGenotype())) {
             
         }
@@ -25,32 +28,18 @@ namespace Alleles
         }
         public string Genotype()
         {
-            string str = "";
-            for (int i = 0; i < dna[Dad].Size(); i++)
-            {
-                //우-열 순서로 배열
-                if (dna[Dad].Genes[i].isDominant())
-                {
-                    str += dna[Dad].Genes[i].Genotype;
-                    str += dna[Mom].Genes[i].Genotype;
-                    continue;
-                }
-                str += dna[Mom].Genes[i].Genotype;
-                str += dna[Dad].Genes[i].Genotype;
-
-            }
-            return str;
+            return reproduct(dna[Dad], dna[Mom]).Genotype();
         }
-        public string Phenotype()
+        public List<IPhenotypeExecution> Phenotype()
         {
             var dna = Genotype();
-            var pt = "|";
-            for (int i = 0; i < this.dna[Dad].Size()*2; i += 2)
+            var r = new List<IPhenotypeExecution>();
+            for (int i = 0; i < dna.Count();i++)
             {
-                pt += $"{dna[i].Phenotype()}|";
+                var v = dna[i].Phenotype();
+                r.Add(v);
             }
-            if(pt.Length == 1) pt = "";
-            return pt;
+            return r;
         }
         public DNA[] CasesOfGermDNAs()
         {
@@ -85,14 +74,14 @@ namespace Alleles
         {
             return (int)Math.Pow(2, dna[Dad].Size());
         }
-        public Dictionary<(DNA, DNA), string> ReproductWith(Wight? creature)
+        public List<DNA> ReproductWith(Wight? creature)
         {
             if (creature == null || !DNAExtension.ValidateDNAs(dna[Dad], creature.dna[Dad]) || !DNAExtension.ValidateDNAs(dna[Mom], creature.dna[Mom]))
             {
                 return null;
             }
 
-            var reproducted = new Dictionary<(DNA, DNA), string>();
+            var reproducted = new List<DNA>();
             var c1 = CasesOfGermDNAs();
             var c2 = creature.CasesOfGermDNAs();
             foreach (var g in c1)
@@ -100,10 +89,41 @@ namespace Alleles
                 foreach (var g2 in c2)
                 {
                     var p = GeneExtension.ToAlignedGenes(g, g2);
-                    reproducted.TryAdd((g, g2), p);
+                    reproducted.Add(new DNA(p));
                 }
             }
             return reproducted;
+        }
+        private static List<DNA>[] dnas;
+        private DNA? reproduct(DNA d1, DNA d2) {
+            return new DNA(GeneExtension.ToAlignedGenes(d1, d2));
+        }
+        private void recursionRep(int maxgen, DNA dna, int current = 0)
+        {
+            if (current >= maxgen) return;
+
+            var germs = new Wight(dna.ToString()).CasesOfGermDNAs();
+            
+            foreach (var germ1 in germs)
+            {
+                foreach (var germ2 in germs)
+                {
+                    var rp = reproduct(germ1, germ2);
+                    if(rp == null) return;
+                    dnas[current].Add(rp);
+                    recursionRep(maxgen, rp, current + 1);
+                }
+            }
+        }
+        public List<DNA>[] SelfReproductForFN(int n) {
+            dnas = new List<DNA>[n];
+            for(int i =  0;i < n;i++)
+                dnas[i] = new List<DNA>();
+            recursionRep(n, reproduct(dna[Dad],dna[Mom]));
+            var result = dnas;
+            
+            dnas = null;
+            return result;
         }
     }
 }
