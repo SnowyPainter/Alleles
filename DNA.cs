@@ -32,7 +32,7 @@ namespace Alleles
         public static Dictionary<string, int> CountPhenotypes(this List<DNA>? reproducted) {
             if(reproducted == null) return null;
             Dictionary<string, int> counts = new Dictionary<string, int>();
-            foreach(var r in reproducted) {
+            foreach(var r in reproducted.ToList()) {
                 if(!counts.TryAdd(r.Phenotype(), 1))
                     counts[r.Phenotype()]++;
             }
@@ -55,9 +55,6 @@ namespace Alleles
                 d += s[i];
             }
             return d;
-        }
-        public static DNA Reproduct(this DNA d1, DNA d2) {
-            return new DNA(GeneExtension.ToAlignedGenes(d1, d2));
         }
     }
 
