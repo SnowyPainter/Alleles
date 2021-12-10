@@ -34,7 +34,7 @@ namespace Alleles {
             Console.WriteLine("생성될 수 있는 생식세포 유전자형");
             int i = 1;
             foreach(var c in f1.CasesOfGermDNAs()) {
-                Console.WriteLine($"{i}.\t{c.Genotype()}\n=\t{c.Phenotype()}");
+                Console.WriteLine($"{i}.\t{c.ToString()}\n=\t{c.Phenotype()}");
                 i++;
             }
             

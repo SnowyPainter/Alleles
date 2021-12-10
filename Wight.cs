@@ -85,9 +85,9 @@ namespace Alleles
         {
             return (int)Math.Pow(2, dna[Dad].Size());
         }
-        public Dictionary<(DNA, DNA), string> ReproductWith(Wight creature)
+        public Dictionary<(DNA, DNA), string> ReproductWith(Wight? creature)
         {
-            if (!DNAExtension.ValidateDNAs(dna[Dad], creature.dna[Dad]) || !DNAExtension.ValidateDNAs(dna[Mom], creature.dna[Mom]))
+            if (creature == null || !DNAExtension.ValidateDNAs(dna[Dad], creature.dna[Dad]) || !DNAExtension.ValidateDNAs(dna[Mom], creature.dna[Mom]))
             {
                 return null;
             }
@@ -105,10 +105,5 @@ namespace Alleles
             }
             return reproducted;
         }
-        //여러개 수가 있을때 최소 공배수 구하기
-
-        //dna AaBb 주어짐
-        //f2 표현형들의 비율이 나옴
-        //어떤 dna와 교배시켜야 그 비율이 나오는가?
     }
 }

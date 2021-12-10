@@ -29,6 +29,15 @@ namespace Alleles
             }
             return phenoRatio;
         }
+        public static Dictionary<string, int> CountPhenotypes(this List<DNA>? reproducted) {
+            if(reproducted == null) return null;
+            Dictionary<string, int> counts = new Dictionary<string, int>();
+            foreach(var r in reproducted) {
+                if(!counts.TryAdd(r.Phenotype(), 1))
+                    counts[r.Phenotype()]++;
+            }
+            return counts; 
+        }
         public static string Genotype(this string s)
         {
             var d = "";
@@ -47,6 +56,9 @@ namespace Alleles
             }
             return d;
         }
+        public static DNA Reproduct(this DNA d1, DNA d2) {
+            return new DNA(GeneExtension.ToAlignedGenes(d1, d2));
+        }
     }
 
     public class DNA
@@ -61,8 +73,7 @@ namespace Alleles
         public DNA(string gts) {
             Set(gts.ToCharArray());
         }
-        public string Genotype()
-        {
+        public override string ToString() {
             string str = "";
             for (int i = 0; i < Genes.Count(); i++)
             {
@@ -70,11 +81,23 @@ namespace Alleles
             }
             return str;
         }
+        public string Genotype()
+        {
+            string str = "";
+            for (int i = 0; i < Genes.Count(); i+=2)
+            {
+                if(Char.IsUpper(Genes[i].Genotype) || Char.IsUpper(Genes[i+1].Genotype))
+                    str += Genes[i].Genotype;
+                else
+                    str += Char.ToLower(Genes[i].Genotype);
+            }
+            return str;
+        }
         public string Phenotype()
         {
             var dna = Genotype();
             var pt = "|";
-            for (int i = 0; i < this.Genes.Count();i++)
+            for (int i = 0; i < dna.Count();i++)
             {
                 pt += $"{dna[i].Phenotype()}|";
             }
