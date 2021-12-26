@@ -2,20 +2,20 @@ namespace Alleles
 {
     public static class GeneExtension
     {
-        private static Dictionary<char, IPhenotypeExecution> phenoForgeno = new Dictionary<char, IPhenotypeExecution>();
+        private static Dictionary<char, PhenotypeExecute> phenoForgeno = new Dictionary<char, PhenotypeExecute>();
         public static bool ValidateDictionary() {
             if(phenoForgeno.Count <= 0) return false;
             return true;
         }
         public static void Clear() {
-            phenoForgeno = new Dictionary<char, IPhenotypeExecution>();
+            phenoForgeno = new Dictionary<char, PhenotypeExecute>();
         }
-        public static void SetPhenotype(this char gene, IPhenotypeExecution ep)
+        public static void SetPhenotype(this char gene, PhenotypeExecute ep)
         {
             if (!phenoForgeno.TryAdd(gene, ep))
                 phenoForgeno[gene] = ep;
         }
-        public static IPhenotypeExecution? Phenotype(this char gene)
+        public static PhenotypeExecute? Phenotype(this char gene)
         {
             return phenoForgeno.GetValueOrDefault(gene);
         }

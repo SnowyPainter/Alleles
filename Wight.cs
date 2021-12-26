@@ -1,17 +1,14 @@
 using System;
+using System.Text;
 
 namespace Alleles
 {
     public class Wight
     {
-        public int JustA, JustB;
-
         private int Dad = 0, Mom = 1;
         private DNA[] dna = new DNA[2];
-        
-        public Wight(string dna):this(new DNA(dna.Genotype()), new DNA(dna.RGenotype())) {
-            
-        }
+
+        public Wight(string dna) : this(new DNA(dna.Genotype()), new DNA(dna.RGenotype())) { }
         public Wight(DNA fromDad, DNA fromMom)
         {
             if (!DNAExtension.ValidateDNAs(fromDad, fromMom))
@@ -23,18 +20,13 @@ namespace Alleles
             dna[Dad] = fromDad;
             dna[Mom] = fromMom;
         }
-        public Wight Clone() {
-            return this;
-        }
-        public string Genotype()
-        {
-            return reproduct(dna[Dad], dna[Mom]).Genotype();
-        }
-        public List<IPhenotypeExecution> Phenotype()
+        public string Genotype() => GeneExtension.ToAlignedGenes(dna[Dad], dna[Mom]);
+        public List<PhenotypeExecute> Phenotype()
         {
             var dna = Genotype();
-            var r = new List<IPhenotypeExecution>();
-            for (int i = 0; i < dna.Count();i++)
+
+            var r = new List<PhenotypeExecute>();
+            for (int i = 0; i < dna.Count(); i++)
             {
                 var v = dna[i].Phenotype();
                 r.Add(v);
@@ -74,55 +66,58 @@ namespace Alleles
         {
             return (int)Math.Pow(2, dna[Dad].Size());
         }
-        public List<DNA> ReproductWith(Wight? creature)
+        private Wight reproduct(DNA d1, DNA d2)
+        {
+            var r = new Wight(d1, d2);
+            /* foreach (var exe in r.Phenotype())
+            {
+                exe.Execute(ref r);
+            } */
+            return r;
+        }
+        public string DNA()
+        {
+            return GeneExtension.ToAlignedGenes(dna[Dad], dna[Mom]);
+        }
+        public List<Wight> ReproductWith(Wight? creature)
         {
             if (creature == null || !DNAExtension.ValidateDNAs(dna[Dad], creature.dna[Dad]) || !DNAExtension.ValidateDNAs(dna[Mom], creature.dna[Mom]))
-            {
                 return null;
-            }
-
-            var reproducted = new List<DNA>();
+            var reproducted = new List<Wight>();
             var c1 = CasesOfGermDNAs();
             var c2 = creature.CasesOfGermDNAs();
             foreach (var g in c1)
-            {
                 foreach (var g2 in c2)
-                {
-                    var p = GeneExtension.ToAlignedGenes(g, g2);
-                    reproducted.Add(new DNA(p));
-                }
-            }
+                    reproducted.Add(reproduct(g, g2));
             return reproducted;
         }
-        private static List<DNA>[] dnas;
-        private DNA? reproduct(DNA d1, DNA d2) {
-            return new DNA(GeneExtension.ToAlignedGenes(d1, d2));
-        }
-        private void recursionRep(int maxgen, DNA dna, int current = 0)
+        private List<Tuple<Wight, DNA>>? creatures;
+        public StringBuilder ReproductLog = new StringBuilder();
+        private void recursionRep(int maxgen, Wight creature, Wight def, int current = 0)
         {
             if (current >= maxgen) return;
-
-            var germs = new Wight(dna.ToString()).CasesOfGermDNAs();
-            
-            foreach (var germ1 in germs)
-            {
-                foreach (var germ2 in germs)
-                {
-                    var rp = reproduct(germ1, germ2);
-                    if(rp == null) return;
-                    dnas[current].Add(rp);
-                    recursionRep(maxgen, rp, current + 1);
-                }
+            var germs = creature.CasesOfGermDNAs();
+            Random random = new Random();
+            var married = def.CasesOfGermDNAs()[random.Next(0, germs.Count())];
+            var marriedwith = germs[random.Next(0, germs.Count())];
+            var rp = reproduct(marriedwith, married);
+            ReproductLog.Append($"F{current+1}, {marriedwith.ToString()}, {married.ToString()}, {rp.DNA()}\n");
+            if (rp == null) return;
+            if(creatures != null) {
+                creatures.Add(Tuple.Create(rp, married));
             }
+            recursionRep(maxgen, rp, def, current + 1);
+
         }
-        public List<DNA>[] SelfReproductForFN(int n) {
-            dnas = new List<DNA>[n];
-            for(int i =  0;i < n;i++)
-                dnas[i] = new List<DNA>();
-            recursionRep(n, reproduct(dna[Dad],dna[Mom]));
-            var result = dnas;
-            
-            dnas = null;
+        public List<Tuple<Wight, DNA>>? SelfReproductForFN(int n, Wight def)
+        {
+            creatures = new List<Tuple<Wight, DNA>>();
+            ReproductLog.Append("Fn, A, B, A+B\n");
+            var r = new Random();
+            var c = def.CasesOfGermDNAs();
+            recursionRep(n, reproduct(dna[Dad], dna[Mom]), def);
+            var result = creatures;
+            creatures = null;
             return result;
         }
     }

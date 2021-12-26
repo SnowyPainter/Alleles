@@ -81,10 +81,10 @@ namespace Alleles
             }
             return str;
         }
-        public List<IPhenotypeExecution> Phenotype()
+        public List<PhenotypeExecute> Phenotype()
         {
             var dna = Genotype();
-            var r = new List<IPhenotypeExecution>();
+            var r = new List<PhenotypeExecute>();
             for (int i = 0; i < dna.Count();i++)
             {
                 var v = dna[i].Phenotype();
