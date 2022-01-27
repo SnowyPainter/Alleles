@@ -91,31 +91,50 @@ namespace Alleles
                     reproducted.Add(reproduct(g, g2));
             return reproducted;
         }
-        private List<Tuple<Wight, DNA>>? creatures;
+        private List<List<Wight>>? creatures;
         public StringBuilder ReproductLog = new StringBuilder();
-        private void recursionRep(int maxgen, Wight creature, Wight def, int current = 0)
+        private void recursionRep(int maxgen, Wight creature, Wight def, int children_count, int current = 0)
         {
             if (current >= maxgen) return;
-            var germs = creature.CasesOfGermDNAs();
+            var germs1 = creature.CasesOfGermDNAs();
+            var germs2 = def.CasesOfGermDNAs();
+            var children = new List<Wight>();
             Random random = new Random();
-            var married = def.CasesOfGermDNAs()[random.Next(0, germs.Count())];
-            var marriedwith = germs[random.Next(0, germs.Count())];
-            var rp = reproduct(marriedwith, married);
-            ReproductLog.Append($"F{current+1}, {marriedwith.ToString()}, {married.ToString()}, {rp.DNA()}\n");
+            string csv = "";
+            DNA p1, p2;
+            Console.WriteLine($"{current}");
+            for(int i =0;i<germs1.Count();i++)
+                Console.WriteLine($"{germs1[i].ToString()}");
+            //생식세포 자신에게서 2개 추출하여 자가수분
+            var r = random.Next(0, germs1.Count());
+            var r2 = random.Next(0, germs1.Count());
+            p1 = germs2[r];
+            p2 = germs1[r2];
+            var rp = reproduct(p1, p2);
             if (rp == null) return;
-            if(creatures != null) {
-                creatures.Add(Tuple.Create(rp, married));
+            if (creatures != null)
+            {
+                csv += $", {rp.DNA()}";
+                children.Add(rp);
             }
-            recursionRep(maxgen, rp, def, current + 1);
+
+            ReproductLog.Append(
+                $"F{current + 1}, {p1.ToString()},{p2.ToString()}{csv}\n"
+            );
+            
+            recursionRep(maxgen, rp, rp, children_count, current + 1);
 
         }
-        public List<Tuple<Wight, DNA>>? SelfReproductForFN(int n, Wight def)
+        public List<List<Wight>>? SelfReproductForFN(int n, int sameGenCount, Wight def)
         {
-            creatures = new List<Tuple<Wight, DNA>>();
-            ReproductLog.Append("Fn, A, B, A+B\n");
-            var r = new Random();
-            var c = def.CasesOfGermDNAs();
-            recursionRep(n, reproduct(dna[Dad], dna[Mom]), def);
+            creatures = new List<List<Wight>>();
+            string str = "";
+            for (int i = 0; i < sameGenCount; i++)
+            {
+                str += ", A+B";
+            }
+            ReproductLog.Append($"FN, A, B{str}\n");
+            recursionRep(n, reproduct(dna[Dad], dna[Mom]), def, sameGenCount);
             var result = creatures;
             creatures = null;
             return result;

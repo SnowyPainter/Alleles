@@ -16,16 +16,16 @@ namespace Alleles
             }
             return true;
         }
-        public static Dictionary<string, int> CountSamePhenotypes(Dictionary<(DNA, DNA), string> reproducted)
+        public static Dictionary<string, int> CountSamePhenotypes(List<Wight> reproducted)
         {
             Dictionary<string, int> phenoRatio = new Dictionary<string, int>();
             var f2 = reproducted;
             foreach (var item in f2)
             {
-                var genotype = item.Value;
+                var genotype = item.DNA();
 
-                if (!phenoRatio.TryAdd(item.Value.PhenotypeString(), 1))
-                    phenoRatio[item.Value.PhenotypeString()]++;
+                if (!phenoRatio.TryAdd(genotype.PhenotypeString(), 1))
+                    phenoRatio[genotype.PhenotypeString()]++;
             }
             return phenoRatio;
         }

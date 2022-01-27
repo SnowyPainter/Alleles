@@ -5,34 +5,36 @@ namespace Alleles // Note: actual namespace depends on the project name.
 {
     public class Program
     {
-        const string Parent = "AaBbCcDdEeFfGgHh";
-        const int GEN = 100;
-        private static void init()
+        public static void Main(string[] args)
         {
-            foreach (var c in Parent)
+            foreach (var line in File.ReadAllLines(args[2]))
             {
-                c.SetPhenotype(new PhenotypeExecute
+                var c = line.Split(':');
+                c[0][0].SetPhenotype(new PhenotypeExecute
                 {
                     Execute = (ref Wight sender) =>
                     {
                         //Nothing manifested
                     },
-                    Execution = c.ToString()
+                    Execution = c[1]
                 });
             }
-        }
-        public static void Main(string[] args)
-        {
-            init();
-            Wight parent = new Wight(Parent);
             
-            var result = parent.SelfReproductForFN(GEN, new Wight(Parent));
+            Wight parent = new Wight(args[0]);
+            
+            var result = parent.ReproductWith(new Wight(args[1]));
             if(result == null) {
                 Console.WriteLine("Error result is null");
                 return;
             }
-
-            File.WriteAllText("a.csv", parent.ReproductLog.ToString());
+            
+            Console.WriteLine(result.Count());
+            foreach(var r in result) {
+                Console.WriteLine(r.DNA());
+            }
+            foreach(var c in DNAExtension.CountSamePhenotypes(result)) {
+                Console.WriteLine($"{c.Key} : {c.Value}");
+            }
 
         }
     }
