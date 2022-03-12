@@ -33,6 +33,27 @@ namespace Alleles
             }
             return r;
         }
+        public List<PhenotypeExecute> ManifestedPhenotype()
+        {
+            var dna = Genotype();
+            var r = new List<PhenotypeExecute>();
+            for (int i = 0; i < dna.Count(); i++)
+            {
+                bool z = false;
+                if(dna.Count() > i+1 && Char.ToLower(dna[i]) == Char.ToLower(dna[i+1])) {
+                    var nextGene = dna[i+1];
+                    z = Char.IsLower(dna[i]) && Char.IsLower(nextGene);
+                }
+                
+                if (Char.IsUpper(dna[i]) || z)
+                {
+                    var v = dna[i].Phenotype();
+                    r.Add(v);
+                }
+            }
+            return r;
+        }
+
         public DNA[] CasesOfGermDNAs()
         {
             int dnalen = dna[Dad].Size();
@@ -103,7 +124,7 @@ namespace Alleles
             string csv = "";
             DNA p1, p2;
             Console.WriteLine($"{current}");
-            for(int i =0;i<germs1.Count();i++)
+            for (int i = 0; i < germs1.Count(); i++)
                 Console.WriteLine($"{germs1[i].ToString()}");
             //생식세포 자신에게서 2개 추출하여 자가수분
             var r = random.Next(0, germs1.Count());
@@ -121,7 +142,7 @@ namespace Alleles
             ReproductLog.Append(
                 $"F{current + 1}, {p1.ToString()},{p2.ToString()}{csv}\n"
             );
-            
+
             recursionRep(maxgen, rp, rp, children_count, current + 1);
 
         }

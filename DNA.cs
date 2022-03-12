@@ -52,7 +52,12 @@ namespace Alleles
     public class DNA
     {
         public readonly List<Gene> Genes = new List<Gene>();
-        
+        public static bool operator ==(DNA a, DNA b) {
+            return a.ToString() == b.ToString();
+        }
+        public static bool operator !=(DNA a, DNA b) {
+            return a.ToString() != b.ToString();
+        }
         public DNA() { }
         public DNA(char[] gts)
         {
